@@ -1,6 +1,6 @@
 {
     "wallet": {
-        "addressKeyName": "uniqueKeyName",
+        "addressKeyName": "keyname",
         "addressRestoreMnemonic": "Your Seed Phrase Here",
         "alloraHomeDir": "/data/.allorad",
         "gas": "2000000",
