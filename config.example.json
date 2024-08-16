@@ -1,23 +1,41 @@
 {
     "wallet": {
-        "addressKeyName": "test",
-        "addressRestoreMnemonic": "",
-        "alloraHomeDir": "",
-        "gas": "1000000",
-        "gasAdjustment": 1.0,
-        "nodeRpc": "http://localhost:26657",
-        "maxRetries": 1,
-        "delay": 1,
-        "submitTx": false
+        "addressKeyName": "uniqueKeyName",
+        "addressRestoreMnemonic": "Your Seed Phrase Here",
+        "alloraHomeDir": "/data/.allorad",
+        "gas": "2000000",
+        "gasAdjustment": 1.2,
+        "nodeRpc": "https://rpc.allora.network/",
+        "maxRetries": 3,
+        "delay": 2,
+        "submitTx": true
     },
     "worker": [
         {
             "topicId": 1,
             "inferenceEntrypointName": "api-worker-reputer",
-            "loopSeconds": 5,
+            "loopSeconds": 10,
             "parameters": {
                 "InferenceEndpoint": "http://inference:8000/inference/{Token}",
                 "Token": "ETH"
+            }
+        },
+        {
+            "topicId": 2,
+            "inferenceEntrypointName": "api-worker-reputer",
+            "loopSeconds": 10,
+            "parameters": {
+                "InferenceEndpoint": "http://inference:8000/inference/{Token}",
+                "Token": "BTC"
+            }
+        },
+        {
+            "topicId": 7,
+            "inferenceEntrypointName": "api-worker-reputer",
+            "loopSeconds": 10,
+            "parameters": {
+                "InferenceEndpoint": "http://inference:8000/inference/{Token}",
+                "Token": "LTC"
             }
         }
     ]
