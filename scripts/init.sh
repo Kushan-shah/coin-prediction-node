@@ -2,12 +2,20 @@
 
 set -e
 
-if allorad keys --home=/data/.allorad --keyring-backend test show $NAME > /dev/null 2>&1 ; then
-    echo "allora account: $NAME already imported"
+# Define constants
+KEYRING_BACKEND="test"
+HOME_DIR="/data/.allorad"
+ENV_FILE="/data/env_file"
+
+# Check if the account already exists
+if allorad keys --home="$HOME_DIR" --keyring-backend "$KEYRING_BACKEND" show "$NAME" > /dev/null 2>&1; then
+    echo "Allora account: $NAME already imported"
 else
-    echo "creating allora account: $NAME"
-    output=$(allorad keys add $NAME --home=/data/.allorad --keyring-backend test 2>&1)
-    address=$(echo "$output" | grep 'address:' | sed 's/.*address: //')
+    echo "Creating Allora account: $NAME"
+    
+    # Add the account and capture output
+    output=$(allorad keys add "$NAME" --home="$HOME_DIR" --keyring-backend "$KEYRING_BACKEND" 2>&1)
+    address=$(echo "$output" | grep 'address:' | awk '{print $2}')
     mnemonic=$(echo "$output" | tail -n 1)
     
     # Parse and update the JSON string
@@ -16,18 +24,17 @@ else
     .wallet.addressRestoreMnemonic = $mnemonic
     ')
     
-    stringified_json=$(echo "$updated_json" | jq -c .)
+    # Save updated JSON and environment variables
+    echo "ALLORA_OFFCHAIN_NODE_CONFIG_JSON=$(echo "$updated_json" | jq -c .)" > "$ENV_FILE"
+    echo "ALLORA_OFFCHAIN_ACCOUNT_ADDRESS=$address" >> "$ENV_FILE"
+    echo "NAME=$NAME" >> "$ENV_FILE"
     
-    echo "ALLORA_OFFCHAIN_NODE_CONFIG_JSON='$stringified_json'" > /data/env_file
-    echo ALLORA_OFFCHAIN_ACCOUNT_ADDRESS=$address >> /data/env_file
-    echo "NAME=$NAME" >> /data/env_file
-    
-    echo "Updated ALLORA_OFFCHAIN_NODE_CONFIG_JSON saved to /data/env_file"
+    echo "Updated ALLORA_OFFCHAIN_NODE_CONFIG_JSON saved to $ENV_FILE"
 fi
 
-
-if grep -q "ENV_LOADED=false" /data/env_file; then
-    sed -i 's/ENV_LOADED=false/ENV_LOADED=true/' /data/env_file
+# Update ENV_LOADED status
+if grep -q "ENV_LOADED=false" "$ENV_FILE"; then
+    sed -i 's/ENV_LOADED=false/ENV_LOADED=true/' "$ENV_FILE"
 else
-    echo "ENV_LOADED=true" >> /data/env_file
+    echo "ENV_LOADED=true" >> "$ENV_FILE"
 fi
